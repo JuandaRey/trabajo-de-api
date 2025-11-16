@@ -1,4 +1,4 @@
-// data/funkos.js
+
 const funkos = [
   {
     id: 1,

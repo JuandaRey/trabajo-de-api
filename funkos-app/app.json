@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "funkitos-front",
-    "slug": "funkitos-front",
+    "name": "funkos-app",
+    "slug": "funkos-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "funkitosfront",
+    "scheme": "funkosapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
