@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
-import { View, Text, TextInput, FlatList, TouchableOpacity, Image, StyleSheet } from "react-native";
+import { View, Text, TextInput, FlatList, TouchableOpacity, Image, StyleSheet, Platform } from "react-native";
 import { Link } from "expo-router";
+
+
+const BASE_API_URL = "http://192.168.1.13:3000/api/funkos"; 
+
 
 type Funko = {
   id: number;
@@ -15,20 +19,53 @@ type Funko = {
 export default function ListaFunkos() {
   const [funkos, setFunkos] = useState<Funko[]>([]);
   const [busqueda, setBusqueda] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   const cargarFunkos = async () => {
+    setIsLoading(true);
     try {
-      const res = await fetch(`http://192.168.1.8:3000/api/funkos?nombre=${busqueda}`);
+      const finalUrl = `${BASE_API_URL}?nombre=${busqueda}`;
+      
+      console.log("Fetching from:", finalUrl); 
+      
+      const res = await fetch(finalUrl);
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
       const data: Funko[] = await res.json();
       setFunkos(data);
+
     } catch (error) {
       console.log("Error cargando funkos", error);
+   
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     cargarFunkos();
-  }, [busqueda]);
+
+  }, [busqueda]); 
+  
+  if (isLoading && funkos.length === 0) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <Text style={{ fontSize: 18, color: '#444' }}>Cargando Funkos...</Text>
+      </View>
+    );
+  }
+
+  if (!isLoading && funkos.length === 0) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <Text style={{ fontSize: 18, color: '#444' }}>No se encontraron Funkos.</Text>
+      </View>
+    );
+  }
+
 
   return (
     <View style={styles.container}>
@@ -59,7 +96,13 @@ export default function ListaFunkos() {
             asChild
           >
             <TouchableOpacity style={styles.card}>
-              <Image source={{ uri: item.imagen }} style={styles.image} />
+              {/* Fallback de imagen en caso de error o URL invalida */}
+              <Image 
+                  source={{ uri: item.imagen }} 
+                  style={styles.image}
+                  defaultSource={{ uri: 'https://placehold.co/130x130/cccccc/333333?text=Funko' }}
+                  onError={(e) => console.log('Error de imagen:', e.nativeEvent.error)}
+              />
 
               <Text style={styles.franquicia}>{item.franquicia}</Text>
               <Text style={styles.nombre}>{item.nombre}</Text>
